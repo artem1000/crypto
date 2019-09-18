@@ -13,7 +13,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class AESCBCDecrypt {
+public class AESDecryptor {
 
     private static final String AES_CBC_PKCS5 = "AES/CBC/PKCS5PADDING";
     private static final String AES_CTR_PKCS5 = "AES/CTR/PKCS5PADDING";

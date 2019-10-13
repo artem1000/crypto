@@ -1,54 +1,114 @@
-package main.basics.crypto1.w1;
+package basics.crypto1.w1;
 
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-
+import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
-import java.util.HashMap;
+import java.util.*;
 
 public class OTPDecryptor {
-    public static void main (String[] args){
 
-        String encryptedDataBlock = "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904";
-        String keyBlock = "66396E89C9DBD8CC9874352ACD6395102EAFCE78AA7FED28A07F6BC98D29C50B69B0339A19F8AA401A9C6D708F80C066C763FEF0123148CDD8E802D05BA98777335DAEFCECD59C433A6B268B60BF4EF03C9A61";
-        String encryptedText = encryptedDataBlock.substring(0,keyBlock.length());
+    private final static int LO_BOUND1 = 64;
+    private final static int UP_BOUND1 = 90;
+    private final static int LO_BOUND2 = 96;
+    private final static int UP_BOUND2 = 122;
 
-        BigInteger cTextInt = new BigInteger(encryptedText, 16);
-        BigInteger keyInt = new BigInteger(keyBlock, 16);
-        BigInteger resInt = cTextInt.xor(keyInt);
-        String resultEncoded = resInt.toString(16);
+    public static void main (String[] args) {
 
-        // Option 1: using Apache Commons Hex
-        try {
-            byte[] bytes = Hex.decodeHex(resultEncoded.toCharArray());
-            System.out.println("Option 1 - using Appache Commons Hex: "+ new String(bytes));
-        } catch (DecoderException e) {
-            System.out.println("Hex decoding did not work :( " + e.getMessage());
-        }
+        String target = "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904";
+        byte[] targetBytes = DatatypeConverter.parseHexBinary(target);
 
-        // Option 2: using own Hex implementation
-        HashMap<String,String> small = new HashMap<>();
-        HashMap<String,String> capital = new HashMap<>();
+        byte[][] givenCipherBlocks = new byte[][]{
+                DatatypeConverter.parseHexBinary("315c4eeaa8b5f8aaf9174145bf43e1784b8fa00dc71d885a804e5ee9fa40b16349c146fb778cdf2d3aff021dfff5b403b510d0d0455468aeb98622b137dae857553ccd8883a7bc37520e06e515d22c954eba5025b8cc57ee59418ce7dc6bc41556bdb36bbca3e8774301fbcaa3b83b220809560987815f65286764703de0f3d524400a19b159610b11ef3e"),
+                DatatypeConverter.parseHexBinary("234c02ecbbfbafa3ed18510abd11fa724fcda2018a1a8342cf064bbde548b12b07df44ba7191d9606ef4081ffde5ad46a5069d9f7f543bedb9c861bf29c7e205132eda9382b0bc2c5c4b45f919cf3a9f1cb74151f6d551f4480c82b2cb24cc5b028aa76eb7b4ab24171ab3cdadb8356f"),
+                DatatypeConverter.parseHexBinary("32510ba9a7b2bba9b8005d43a304b5714cc0bb0c8a34884dd91304b8ad40b62b07df44ba6e9d8a2368e51d04e0e7b207b70b9b8261112bacb6c866a232dfe257527dc29398f5f3251a0d47e503c66e935de81230b59b7afb5f41afa8d661cb"),
+                DatatypeConverter.parseHexBinary("32510ba9aab2a8a4fd06414fb517b5605cc0aa0dc91a8908c2064ba8ad5ea06a029056f47a8ad3306ef5021eafe1ac01a81197847a5c68a1b78769a37bc8f4575432c198ccb4ef63590256e305cd3a9544ee4160ead45aef520489e7da7d835402bca670bda8eb775200b8dabbba246b130f040d8ec6447e2c767f3d30ed81ea2e4c1404e1315a1010e7229be6636aaa"),
+                DatatypeConverter.parseHexBinary("3f561ba9adb4b6ebec54424ba317b564418fac0dd35f8c08d31a1fe9e24fe56808c213f17c81d9607cee021dafe1e001b21ade877a5e68bea88d61b93ac5ee0d562e8e9582f5ef375f0a4ae20ed86e935de81230b59b73fb4302cd95d770c65b40aaa065f2a5e33a5a0bb5dcaba43722130f042f8ec85b7c2070"),
+                DatatypeConverter.parseHexBinary("32510bfbacfbb9befd54415da243e1695ecabd58c519cd4bd2061bbde24eb76a19d84aba34d8de287be84d07e7e9a30ee714979c7e1123a8bd9822a33ecaf512472e8e8f8db3f9635c1949e640c621854eba0d79eccf52ff111284b4cc61d11902aebc66f2b2e436434eacc0aba938220b084800c2ca4e693522643573b2c4ce35050b0cf774201f0fe52ac9f26d71b6cf61a711cc229f77ace7aa88a2f19983122b11be87a59c355d25f8e4"),
+                DatatypeConverter.parseHexBinary("32510bfbacfbb9befd54415da243e1695ecabd58c519cd4bd90f1fa6ea5ba47b01c909ba7696cf606ef40c04afe1ac0aa8148dd066592ded9f8774b529c7ea125d298e8883f5e9305f4b44f915cb2bd05af51373fd9b4af511039fa2d96f83414aaaf261bda2e97b170fb5cce2a53e675c154c0d9681596934777e2275b381ce2e40582afe67650b13e72287ff2270abcf73bb028932836fbdecfecee0a3b894473c1bbeb6b4913a536ce4f9b13f1efff71ea313c8661dd9a4ce"),
+                DatatypeConverter.parseHexBinary("315c4eeaa8b5f8bffd11155ea506b56041c6a00c8a08854dd21a4bbde54ce56801d943ba708b8a3574f40c00fff9e00fa1439fd0654327a3bfc860b92f89ee04132ecb9298f5fd2d5e4b45e40ecc3b9d59e9417df7c95bba410e9aa2ca24c5474da2f276baa3ac325918b2daada43d6712150441c2e04f6565517f317da9d3"),
+                DatatypeConverter.parseHexBinary("271946f9bbb2aeadec111841a81abc300ecaa01bd8069d5cc91005e9fe4aad6e04d513e96d99de2569bc5e50eeeca709b50a8a987f4264edb6896fb537d0a716132ddc938fb0f836480e06ed0fcd6e9759f40462f9cf57f4564186a2c1778f1543efa270bda5e933421cbe88a4a52222190f471e9bd15f652b653b7071aec59a2705081ffe72651d08f822c9ed6d76e48b63ab15d0208573a7eef027"),
+                DatatypeConverter.parseHexBinary("466d06ece998b7a2fb1d464fed2ced7641ddaa3cc31c9941cf110abbf409ed39598005b3399ccfafb61d0315fca0a314be138a9f32503bedac8067f03adbf3575c3b8edc9ba7f537530541ab0f9f3cd04ff50d66f1d559ba520e89a2cb2a83"),
+                targetBytes
+        };
 
-        for (char cSml = 'a', cCap = 'A'; cSml <= 'z' && cCap <= 'Z'; cSml++, cCap++){
-            small.put(getHex(cSml), Character.toString(cSml));
-            capital.put(getHex(cCap), Character.toString(cCap));
-        }
+        byte[] keyBytes = new byte[targetBytes.length];
+        Map<Integer, List<KeyByteCandidate>> keyFreq = new HashMap<>();
 
-        StringBuilder textBuilder = new StringBuilder();
-        for (int c = 0; c < resultEncoded.length(); c += 2)
-        {
-            String resultHex = resultEncoded.substring(c, c + 2);
-            resultHex = resultHex.toUpperCase();
-            if (small.containsKey(resultHex)) {
-                textBuilder.append(small.get(resultHex));
+        for (int j = 0; j < givenCipherBlocks.length -1 ; j++) {
+            for (int k = j + 1; k < givenCipherBlocks.length; k++) {
+                for (int i = 0; i < Math.min(givenCipherBlocks[j].length, givenCipherBlocks[k].length); i++) {
+                        byte a = givenCipherBlocks[j][i];
+                        byte b = givenCipherBlocks[k][i];
+                        int r = a ^ b;
+                        if((r > LO_BOUND1 && r <= UP_BOUND1) || (r > LO_BOUND2 && r <= UP_BOUND2)) {
+                                if (keyFreq.containsKey(i)){
+                                    List<KeyByteCandidate> keyCandidateList = keyFreq.get(i);
+                                    KeyByteCandidate byteA = keyCandidateList.stream().filter(kk -> kk.byteFound == (a ^ 32)).findFirst().orElse(null);
+                                    KeyByteCandidate byteB = keyCandidateList.stream().filter(kk -> kk.byteFound == (b ^ 32)).findFirst().orElse(null);
+                                    if (byteA != null) byteA.incOne();
+                                    else {
+                                        byteA = new KeyByteCandidate((byte)(a ^ 32), 1);
+                                        keyCandidateList.add(byteA);
+                                    }
+
+                                    if (byteB != null) byteB.incOne();
+                                    else {
+                                        byteB = new KeyByteCandidate((byte)(b ^ 32), 1);
+                                        keyCandidateList.add(byteB);
+                                    }
+                                }
+                                else{
+                                    List<KeyByteCandidate> keyByteCandidateList = new ArrayList<>();
+                                    KeyByteCandidate byteA = new KeyByteCandidate((byte)(a ^ 32), 1);
+                                    KeyByteCandidate byteB = new KeyByteCandidate((byte)(b ^ 32), 1);
+                                    keyByteCandidateList.add(byteA);
+                                    keyByteCandidateList.add(byteB);
+                                    keyFreq.put(i, keyByteCandidateList);
+                                }
+                        }
+                    }
+                }
             }
-            else textBuilder.append(capital.getOrDefault(resultHex, " "));
-        }
-        System.out.println("Option 2 - using own Hex implementation: "+textBuilder.toString());
+            //populate key bytes array using max frequency
+            for (int i = 0; i < keyBytes.length; i++) {
+               keyBytes[i]= keyFreq.get(i).stream().max(Comparator.comparing(KeyByteCandidate::getByteFreq)).map(v -> v.byteFound).orElse((byte)0);
+            }
+
+            String keysText = DatatypeConverter.printHexBinary(keyBytes);
+            BigInteger cTextInt = new BigInteger(target, 16);
+            BigInteger keyInt = new BigInteger(keysText, 16);
+            BigInteger resInt = cTextInt.xor(keyInt);
+            String resultEncoded = resInt.toString(16);
+
+            // Option 1: using Apache Commons Hex
+            try {
+                byte[] bytes = Hex.decodeHex(resultEncoded.toCharArray());
+                System.out.println("Option 1 - using Appache Commons Hex: " + new String(bytes));
+            } catch (DecoderException e) {
+                System.out.println("Hex decoding did not work :( " + e.getMessage());
+            }
+
+            // Option 2: -- using DatatypeConverter
+            System.out.println("Option 2 - using DatatypeConverter: " + new String(DatatypeConverter.parseHexBinary(resultEncoded)));
+            }
     }
-    private static String getHex(char charToHex) {
-        return String.format("%02x", (int) charToHex).toUpperCase();
+
+class KeyByteCandidate {
+    byte byteFound;
+    private int byteFreq;
+
+    KeyByteCandidate(byte byteFound, int byteFreq) {
+        this.byteFound = byteFound;
+        this.byteFreq = byteFreq;
+    }
+
+    void incOne(){
+        byteFreq +=1;
+    }
+    int getByteFreq() {
+        return byteFreq;
     }
 }
+

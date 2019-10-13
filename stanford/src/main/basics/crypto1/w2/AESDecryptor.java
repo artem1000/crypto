@@ -1,4 +1,4 @@
-package main.basics.crypto1.w2;
+package basics.crypto1.w2;
 
 import org.apache.commons.lang3.ArrayUtils;
 
